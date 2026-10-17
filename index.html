@@ -7329,8 +7329,11 @@ html.tiny-pc-beauty-v12 #uiverse-starfield #stars3 {
 
         tinySoundtrack.addEventListener('timeupdate', () => {
             const t = tinySoundtrack.currentTime || 0;
-            if (t >= MUSIC_HOLD_TIME && clickCount === 2 && !musicAutoAdvanceTimer) {
-                scheduleIntroNudge(1200);
+            // Khi đang ở cảnh 2 (Text 3: "Hôm nay tớ nhận lệnh...") và nhạc chạm mốc 9.70s:
+            // TỰ ĐỘNG CHUYỂN CẢNH NGAY LẬP TỨC sang "ui cậu đẹp quá"!
+            // Nhờ đó câu hát "người ta nói chẳng ai hiểu" vang lên CÙNG LÚC với "ui cậu đẹp quá"!
+            if (clickCount === 2 && t >= MUSIC_HOLD_TIME) {
+                advanceToBeautyScene();
             }
             if (activeWish === 'smile') syncLyricWithMusic();
         });
@@ -7365,9 +7368,9 @@ html.tiny-pc-beauty-v12 #uiverse-starfield #stars3 {
         }
         function scheduleIntroNudge(waitMs=2000) {
             clearTimeout(introNudgeTimer);
-            if (musicAllowedPastGate || clickCount > 2) return;
+            if (musicAllowedPastGate || clickCount >= 2) return;
             introNudgeTimer = setTimeout(() => {
-                if (musicAllowedPastGate || clickCount > 2 || document.hidden) return;
+                if (musicAllowedPastGate || clickCount >= 2 || document.hidden) return;
                 // Nếu người xem chưa đánh thức Tiny, Tiny tự mở mắt mời sang cảnh.
                 matElements.forEach(eye => eye.classList.add('thuc'));
                 khungMat.classList.add('tiny-intro-urging');
@@ -7376,7 +7379,7 @@ html.tiny-pc-beauty-v12 #uiverse-starfield #stars3 {
         }
         document.addEventListener('visibilitychange', () => {
             if (document.hidden) hideIntroNudge();
-            else if (!musicAllowedPastGate && clickCount <= 2)
+            else if (!musicAllowedPastGate && clickCount < 2)
                 scheduleIntroNudge(2000);
         });
 
@@ -7409,12 +7412,27 @@ html.tiny-pc-beauty-v12 #uiverse-starfield #stars3 {
         function advanceToBeautyScene() {
             if (clickCount !== 2) return;
             clickCount = 3;
+            canClick = false;
+            setTimeout(() => { canClick = true; }, 600);
             musicAllowedPastGate = true;
             clearTimeout(musicAutoAdvanceTimer);
             musicAutoAdvanceTimer = null;
             clearTimeout(musicHintTimer);
             musicWaitHint?.classList.remove('show');
             hideIntroNudge();
+
+            // Khóa đồng bộ tuyệt đối: đảm bảo đúng giây 9.70s tiếng hát "người ta nói chẳng ai hiểu" cất lên
+            startMusicIfAllowed();
+            try {
+                const cur = tinySoundtrack.currentTime || 0;
+                // Nếu âm thanh đang lệch quá 0.12s so với 9.70s (hoặc bị trễ/tua nhanh), căn chỉnh về đúng 9.70s
+                if (Math.abs(cur - MUSIC_HOLD_TIME) > 0.12) {
+                    tinySoundtrack.currentTime = MUSIC_HOLD_TIME;
+                }
+                if (tinySoundtrack.paused) {
+                    tinySoundtrack.play().catch(() => {});
+                }
+            } catch (_) {}
 
             text3.classList.remove('hien-thi');
             text4.classList.add('hien-thi');
@@ -7444,7 +7462,6 @@ html.tiny-pc-beauty-v12 #uiverse-starfield #stars3 {
                 }
                 animationStarted = true;
             }
-            canClick = true;
         }
 
         // Chuyển cảnh: click chuột trên PC hoặc chạm màn hình trên mobile
@@ -7457,20 +7474,24 @@ html.tiny-pc-beauty-v12 #uiverse-starfield #stars3 {
                 const curTime = tinySoundtrack.currentTime || 0;
                 const isPlaying = !tinySoundtrack.paused && curTime > 0.05;
 
-                // Nếu nhạc đang phát và chưa tới mốc beat drop (9.6s):
-                if (isPlaying && curTime < MUSIC_HOLD_TIME - 0.1) {
+                // Nếu nhạc đang phát và chưa tới mốc hát 9.70s ("người ta nói chẳng ai hiểu"):
+                if (isPlaying && curTime < MUSIC_HOLD_TIME - 0.15) {
                     waitClickCount++;
                     showMusicWaitHint();
 
-                    // Nếu bấm liên tiếp từ 3 lần trở lên thì chuyển ngay tránh gây ức chế
+                    // Nếu bấm liên tiếp từ 3 lần trở lên: chuyển ngay và tua nhạc đến đúng 9.70s
+                    // để tiếng hát "người ta nói chẳng ai hiểu" VẪN cất lên đúng lúc "ui cậu đẹp quá"!
                     if (waitClickCount >= 3) {
+                        try {
+                            tinySoundtrack.currentTime = MUSIC_HOLD_TIME;
+                        } catch (_) {}
                         advanceToBeautyScene();
                         return;
                     }
 
-                    // Tự động chuyển cảnh đúng nhịp drop để đồng bộ nhạc hoàn hảo
+                    // Tự động chuyển cảnh đúng mốc 9.70s để đồng bộ hoàn hảo
                     if (!musicAutoAdvanceTimer) {
-                        const waitMs = Math.min(9500, Math.max(250, (MUSIC_HOLD_TIME - curTime) * 1000));
+                        const waitMs = Math.max(100, (MUSIC_HOLD_TIME - curTime) * 1000);
                         musicAutoAdvanceTimer = setTimeout(() => {
                             advanceToBeautyScene();
                         }, waitMs);
@@ -7478,7 +7499,7 @@ html.tiny-pc-beauty-v12 #uiverse-starfield #stars3 {
                     return;
                 }
 
-                // Nếu nhạc đã qua 9.6s HOẶC trên mobile nhạc bị tắt tiếng/chưa chạy:
+                // Nếu nhạc đã qua 9.70s HOẶC trên mobile nhạc chưa chạy:
                 advanceToBeautyScene();
                 return;
             }
@@ -7502,6 +7523,26 @@ html.tiny-pc-beauty-v12 #uiverse-starfield #stars3 {
                 text2.classList.remove('hien-thi');
                 text3.classList.add('hien-thi');
                 batDauLiec();
+
+                // Nếu người xem ở lại cảnh 2 quá lâu khiến nhạc đã vượt qua 7.2s:
+                // Ta tua nhẹ lại 3.5s ("vì đã lỡ yêu em rồi") để họ có đủ ~6.2s thong thả đọc text 3
+                // trước khi tiếng hát "người ta nói chẳng ai hiểu" (9.70s) bùng nổ cùng cảnh đẹp!
+                const curT = tinySoundtrack.currentTime || 0;
+                if (curT > 7.2) {
+                    try {
+                        tinySoundtrack.currentTime = 3.5;
+                    } catch (_) {}
+                }
+
+                // Lên lịch tự động chuyển sang "ui cậu đẹp quá" chính xác lúc chạm mốc 9.70s
+                clearTimeout(musicAutoAdvanceTimer);
+                const updatedTime = tinySoundtrack.currentTime || 0;
+                const remainMs = Math.max(100, (MUSIC_HOLD_TIME - updatedTime) * 1000);
+                musicAutoAdvanceTimer = setTimeout(() => {
+                    if (clickCount === 2) {
+                        advanceToBeautyScene();
+                    }
+                }, remainMs);
             }
                 else if (clickCount === 3) {
                     clickCount++;
