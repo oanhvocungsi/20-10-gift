@@ -7241,18 +7241,17 @@ html.tiny-pc-beauty-v12 #uiverse-starfield #stars3 {
 
         const lyricCues = [{"time":0.0,"text":"chỉ biết nói cho em"},{"time":1.7,"text":"nghe vậy thôi"},{"time":3.4,"text":"vì đã lỡ yêu em rồi"},{"time":6.3,"text":"chẳng giám hứa xa sôi"},{"time":9.7,"text":"người ta nói chẳng ai hiểu"},{"time":13.1,"text":"về hai tiếng thương yêu"},{"time":16.0,"text":"chẳng phải cứ bên nhau"},{"time":18.1,"text":"làm nhau khổ đau là tình yêu?"},{"time":22.8,"text":"nhiều khi rất yêu nhau mà"},{"time":26.0,"text":"phải đứng ở rất xa"},{"time":29.4,"text":"nhìn em hạnh phúc bên ai chẳng phải mình"},{"time":33.4,"text":"vì mình có làm được đâu"},{"time":35.7,"text":"nhường ai khác bên em là"},{"time":38.5,"text":"nhường đi hết tất cả"},{"time":42.0,"text":"yêu em chẳng khiến em được vui"},{"time":44.9,"text":"thế nên anh phải xa"},{"time":48.7,"text":"càng yêu chỉ thêm thất vọng"},{"time":51.8,"text":"càng tan nát cõi lòng"},{"time":55.0,"text":"không được như mong"}];
         const MUSIC_HOLD_TIME = 9.7;
-        const MUSIC_FADE_START = 8.35;
         const MUSIC_VOLUME = 0.84;
-        let musicGateClosed = false;
         let musicAllowedPastGate = false;
-        let musicFadeTimer = null;
-        let musicResumeFadeStart = 0;
-        let musicSeekingResume = false;
+        let musicAutoAdvanceTimer = null;
+        let waitClickCount = 0;
         let lyricActiveIndex = -1;
         let lyricSlotIndex = -1;
         let lyricInterval = null;
-        tinySoundtrack.volume = MUSIC_VOLUME;
-        tinySoundtrack.muted = false;
+        try {
+            tinySoundtrack.volume = MUSIC_VOLUME;
+            tinySoundtrack.muted = false;
+        } catch (_) {}
         let musicHintTimer = null;
         const musicWaitMessages = ['đợi chút xíu đii', 'đợi chút nữa thui', 'xíu nữa', 'sắp được rùi', '1 chút thuii'];
         function showMusicWaitHint() {
@@ -7264,59 +7263,20 @@ html.tiny-pc-beauty-v12 #uiverse-starfield #stars3 {
         }
 
         function startMusicIfAllowed() {
-            // Trình duyệt có thể chặn autoplay có tiếng khi chưa có thao tác người dùng.
-            // Không hiện nút: thử phát khi mở, và thử lại trong lần click/chạm đầu tiên.
-            if (musicGateClosed && !musicAllowedPastGate) return;
+            try {
+                tinySoundtrack.muted = false;
+                tinySoundtrack.volume = MUSIC_VOLUME;
+            } catch (_) {}
             if (!tinySoundtrack.paused) return;
             const p = tinySoundtrack.play();
             if (p && typeof p.catch === 'function') p.catch(() => {});
         }
 
-        function musicFadeAndHold() {
-            if (musicAllowedPastGate || musicGateClosed) return;
-            const t = tinySoundtrack.currentTime || 0;
-            if (t >= MUSIC_HOLD_TIME - .02) {
-                musicGateClosed = true;
-                scheduleIntroNudge(2000);
-                tinySoundtrack.pause();
-                try { tinySoundtrack.currentTime = MUSIC_HOLD_TIME; } catch (_) {}
-                tinySoundtrack.volume = 0;
-                if (musicFadeTimer !== null) { clearInterval(musicFadeTimer); musicFadeTimer = null; }
-                return;
-            }
-            if (t >= MUSIC_FADE_START) {
-                tinySoundtrack.volume = MUSIC_VOLUME * Math.max(0, (MUSIC_HOLD_TIME - t) / (MUSIC_HOLD_TIME - MUSIC_FADE_START));
-            }
-        }
+        // Không bao giờ pause hoặc giảm volume về 0 trên mobile để bảo toàn luồng âm thanh
+        function musicFadeAndHold() {}
 
-        // Chỉ phát tiếp sau khi nghe đủ 9,7 giây VÀ click vào "ui cậu đẹp quá".
         function resumeMusicAtBeauty() {
-            if (musicAllowedPastGate) return;
-            if (!musicGateClosed || tinySoundtrack.currentTime < MUSIC_HOLD_TIME - .045) return;
             musicAllowedPastGate = true;
-            musicGateClosed = false;
-            if (musicFadeTimer !== null) { clearInterval(musicFadeTimer); musicFadeTimer = null; }
-            musicSeekingResume = true;
-            if (tinySoundtrack.readyState >= 1) {
-                try { tinySoundtrack.currentTime = Math.max(MUSIC_HOLD_TIME, tinySoundtrack.currentTime); } catch (_) {}
-            } else {
-                tinySoundtrack.addEventListener('loadedmetadata', () => {
-                    if (musicSeekingResume) tinySoundtrack.currentTime = MUSIC_HOLD_TIME;
-                }, {once:true});
-            }
-            tinySoundtrack.volume = 0;
-            const fadeIn = (now) => {
-                if (tinySoundtrack.paused || !musicAllowedPastGate) return;
-                const v = Math.min(1, (now - musicResumeFadeStart) / 850);
-                tinySoundtrack.volume = MUSIC_VOLUME * v;
-                if (v < 1) requestAnimationFrame(fadeIn);
-            };
-            // Đợi âm thanh PHÁT THỰC SỰ rồi mới đếm 850ms tăng âm lượng.
-            // Nếu bắt đầu rAF trước play() xong thì có thể bị kẹt tại volume=0.
-            tinySoundtrack.addEventListener('playing', () => {
-                musicResumeFadeStart = performance.now();
-                requestAnimationFrame(fadeIn);
-            }, {once:true});
             startMusicIfAllowed();
         }
 
@@ -7368,16 +7328,14 @@ html.tiny-pc-beauty-v12 #uiverse-starfield #stars3 {
         }
 
         tinySoundtrack.addEventListener('timeupdate', () => {
-            musicFadeAndHold();
+            const t = tinySoundtrack.currentTime || 0;
+            if (t >= MUSIC_HOLD_TIME && clickCount === 2 && !musicAutoAdvanceTimer) {
+                scheduleIntroNudge(1200);
+            }
             if (activeWish === 'smile') syncLyricWithMusic();
         });
-        tinySoundtrack.addEventListener('play', () => {
-            if (!musicAllowedPastGate && !musicGateClosed && musicFadeTimer === null)
-                musicFadeTimer = setInterval(musicFadeAndHold, 35);
-        });
-        // Thử phát NGAY khi mở trang (và khi media sẵn sàng), không cần nút riêng.
-        // Chrome/Safari có thể chặn tiếng khi chưa có tương tác: trường hợp đó click đầu tiên
-        // trên trang sẽ khởi phát nhạc như trước, không thể vượt qua chính sách bằng JavaScript.
+
+        // Tự động mở khóa âm thanh ngay từ thao tác chạm/click đầu tiên trên mobile và PC
         startMusicIfAllowed();
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', startMusicIfAllowed, {once:true});
@@ -7386,11 +7344,9 @@ html.tiny-pc-beauty-v12 #uiverse-starfield #stars3 {
         window.addEventListener('pageshow', startMusicIfAllowed);
         tinySoundtrack.addEventListener('canplay', startMusicIfAllowed, {once:true});
         tinySoundtrack.addEventListener('canplaythrough', startMusicIfAllowed, {once:true});
-        // Khi người dùng đã cho phép tự phát âm thanh trên website, nhạc bắt đầu
-        // ngay khi trang/media sẵn sàng. Nếu trình duyệt chặn autoplay có tiếng,
-        // tương tác đầu tiên sẽ mở khóa (không có cách JS hợp lệ để vượt chính sách đó).
-        document.addEventListener('pointerdown', startMusicIfAllowed, {passive:true});
-        document.addEventListener('keydown', startMusicIfAllowed);
+        ['touchstart', 'touchend', 'pointerdown', 'mousedown', 'click', 'keydown'].forEach(evt => {
+            window.addEventListener(evt, startMusicIfAllowed, { passive: true });
+        });
         document.addEventListener('visibilitychange', () => {
             if (!document.hidden) startMusicIfAllowed();
         });
@@ -7409,18 +7365,18 @@ html.tiny-pc-beauty-v12 #uiverse-starfield #stars3 {
         }
         function scheduleIntroNudge(waitMs=2000) {
             clearTimeout(introNudgeTimer);
-            if (!musicGateClosed || musicAllowedPastGate || clickCount > 2) return;
+            if (musicAllowedPastGate || clickCount > 2) return;
             introNudgeTimer = setTimeout(() => {
-                if (!musicGateClosed || musicAllowedPastGate || clickCount > 2 || document.hidden) return;
+                if (musicAllowedPastGate || clickCount > 2 || document.hidden) return;
                 // Nếu người xem chưa đánh thức Tiny, Tiny tự mở mắt mời sang cảnh.
                 matElements.forEach(eye => eye.classList.add('thuc'));
                 khungMat.classList.add('tiny-intro-urging');
                 introNudge?.classList.add('show');
-            },waitMs);
+            }, waitMs);
         }
         document.addEventListener('visibilitychange', () => {
             if (document.hidden) hideIntroNudge();
-            else if (musicGateClosed && !musicAllowedPastGate && clickCount <= 2)
+            else if (!musicAllowedPastGate && clickCount <= 2)
                 scheduleIntroNudge(2000);
         });
 
@@ -7449,73 +7405,104 @@ html.tiny-pc-beauty-v12 #uiverse-starfield #stars3 {
             },delay);
         }
 
+        // Chuyển sang cảnh 'ui cậu đẹp quá' (cảnh 3) với hiệu ứng hoa rơi và mắt mê man
+        function advanceToBeautyScene() {
+            if (clickCount !== 2) return;
+            clickCount = 3;
+            musicAllowedPastGate = true;
+            clearTimeout(musicAutoAdvanceTimer);
+            musicAutoAdvanceTimer = null;
+            clearTimeout(musicHintTimer);
+            musicWaitHint?.classList.remove('show');
+            hideIntroNudge();
+
+            text3.classList.remove('hien-thi');
+            text4.classList.add('hien-thi');
+            pinkOverlay.classList.add('hien-thi');
+            natureCanvas.classList.add('hien-thi');
+
+            dungLiec(false);
+            trucXElements.forEach(tx => {
+                const currentTransform = window.getComputedStyle(tx).getPropertyValue('transform');
+                tx.style.transform = currentTransform; 
+            });
+
+            void khungMat.offsetWidth; 
+
+            trucXElements.forEach(tx => {
+                tx.style.transition = 'transform 1.5s cubic-bezier(0.2, 0.8, 0.2, 1)';
+                tx.style.transform = 'translateX(0)';
+            });
+
+            khungMat.classList.add('me-man');
+            
+            if (!animationStarted) {
+                try {
+                    khoiDongMuaHoa();
+                } catch (err) {
+                    console.error("Lỗi:", err);
+                }
+                animationStarted = true;
+            }
+            canClick = true;
+        }
 
         // Chuyển cảnh: click chuột trên PC hoặc chạm màn hình trên mobile
         function chuyenCanh() {
-            {
-                if (!canClick) return;
-                // Gọi play() ngay trong tương tác để Chrome cho phép âm thanh.
-                startMusicIfAllowed();
-                // Không được bỏ qua 9,7 giây đầu dù click nhiều lần.
-                if (clickCount === 2 && (!musicGateClosed || tinySoundtrack.currentTime < MUSIC_HOLD_TIME - .045)) {
+            if (!canClick) return;
+            // Gọi play() ngay trong tương tác để browser cho phép âm thanh.
+            startMusicIfAllowed();
+
+            if (clickCount === 2) {
+                const curTime = tinySoundtrack.currentTime || 0;
+                const isPlaying = !tinySoundtrack.paused && curTime > 0.05;
+
+                // Nếu nhạc đang phát và chưa tới mốc beat drop (9.6s):
+                if (isPlaying && curTime < MUSIC_HOLD_TIME - 0.1) {
+                    waitClickCount++;
                     showMusicWaitHint();
+
+                    // Nếu bấm liên tiếp từ 3 lần trở lên thì chuyển ngay tránh gây ức chế
+                    if (waitClickCount >= 3) {
+                        advanceToBeautyScene();
+                        return;
+                    }
+
+                    // Tự động chuyển cảnh đúng nhịp drop để đồng bộ nhạc hoàn hảo
+                    if (!musicAutoAdvanceTimer) {
+                        const waitMs = Math.min(9500, Math.max(250, (MUSIC_HOLD_TIME - curTime) * 1000));
+                        musicAutoAdvanceTimer = setTimeout(() => {
+                            advanceToBeautyScene();
+                        }, waitMs);
+                    }
                     return;
                 }
-                if (clickCount === 2) resumeMusicAtBeauty();
-                hideIntroNudge();
 
-                if (clickCount === 0) {
-                    canClick = false;
-                    clickCount++;
-                    text1.classList.remove('hien-thi');
-                    
-                    setTimeout(() => {
-                        matElements.forEach(m => m.classList.add('thuc'));
-                        text2.classList.add('hien-thi'); 
-                        setTimeout(kichHoatChuKyChop, 1000);
-                        canClick = true;
-                        if (musicGateClosed && clickCount === 1) scheduleIntroNudge(2000); 
-                    }, 700);
-                } 
-                else if (clickCount === 1) {
-                    clickCount++;
-                    text2.classList.remove('hien-thi');
-                    text3.classList.add('hien-thi');
-                    batDauLiec();
-                    if (musicGateClosed && !musicAllowedPastGate) scheduleIntroNudge(2000);
-                }
-                else if (clickCount === 2) {
-                    clickCount++;
-                    
-                    text3.classList.remove('hien-thi');
-                    text4.classList.add('hien-thi');
-                    pinkOverlay.classList.add('hien-thi');
-                    natureCanvas.classList.add('hien-thi');
+                // Nếu nhạc đã qua 9.6s HOẶC trên mobile nhạc bị tắt tiếng/chưa chạy:
+                advanceToBeautyScene();
+                return;
+            }
 
-                    dungLiec(false);
-                    trucXElements.forEach(tx => {
-                        const currentTransform = window.getComputedStyle(tx).getPropertyValue('transform');
-                        tx.style.transform = currentTransform; 
-                    });
+            hideIntroNudge();
 
-                    void khungMat.offsetWidth; 
-
-                    trucXElements.forEach(tx => {
-                        tx.style.transition = 'transform 1.5s cubic-bezier(0.2, 0.8, 0.2, 1)';
-                        tx.style.transform = 'translateX(0)';
-                    });
-
-                    khungMat.classList.add('me-man');
-                    
-                    if (!animationStarted) {
-                        try {
-                            khoiDongMuaHoa();
-                        } catch (err) {
-                            console.error("Lỗi:", err);
-                        }
-                        animationStarted = true;
-                    }
-                }
+            if (clickCount === 0) {
+                canClick = false;
+                clickCount++;
+                text1.classList.remove('hien-thi');
+                
+                setTimeout(() => {
+                    matElements.forEach(m => m.classList.add('thuc'));
+                    text2.classList.add('hien-thi'); 
+                    setTimeout(kichHoatChuKyChop, 1000);
+                    canClick = true;
+                }, 700);
+            } 
+            else if (clickCount === 1) {
+                clickCount++;
+                text2.classList.remove('hien-thi');
+                text3.classList.add('hien-thi');
+                batDauLiec();
+            }
                 else if (clickCount === 3) {
                     clickCount++;
                     
@@ -7580,7 +7567,6 @@ html.tiny-pc-beauty-v12 #uiverse-starfield #stars3 {
                     clickCount++;
                     startShareFlightScene();
                 }
-            }
         }
 
         function batDauCanhMuon() {
