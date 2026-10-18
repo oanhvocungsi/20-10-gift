@@ -113,7 +113,15 @@
     startMusic(); // phát nhạc (đã unlock sẵn từ pointerdown)
     wrap.classList.add('done');
     setTimeout(() => { wrap.style.display = 'none'; }, 600);
-    window.dispatchEvent(new Event('__textStart'));
+    if (typeof window.startBloomingBouquetScene === 'function') {
+      window.startBloomingBouquetScene(() => {
+        window.__textStarted = true;
+        window.dispatchEvent(new Event('__textStart'));
+      });
+    } else {
+      window.__textStarted = true;
+      window.dispatchEvent(new Event('__textStart'));
+    }
   }
 
   function onDown(e) {

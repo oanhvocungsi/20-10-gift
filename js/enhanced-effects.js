@@ -57,7 +57,7 @@ function checkIsIPad() {
     }
     return false;
 }
-const T = (p || checkIsIPad()) ? 4e3 : 3500;
+const T = (p || checkIsIPad()) ? 5500 : 5200;
 function P() {
     if (c) return;
     c = !0;

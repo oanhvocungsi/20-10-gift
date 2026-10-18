@@ -3223,23 +3223,38 @@ window.TINY_PERF = (() => {
             opacity: 1; transform: translateY(0) scale(1);
         }
         #tiny-lyric-zone .lyric-line.compact { font-size: clamp(17px, 1.95vw, 24px); }
-        /* Chỉ xuất hiện khi cố chuyển đến “ui cậu đẹp quá” quá sớm. */
+        /* Gợi ý chờ nhạc và nút bấm 'được ròi bấm đi ạ' */
         #music-wait-hint {
-            position: fixed; z-index: 36; left: 50%; bottom: 10%;
-            width: max-content; max-width: 88vw; padding: 9px 18px;
-            border-radius: 24px; transform: translate(-50%, 8px);
-            font: 15px 'Courier Prime', monospace; text-align: center;
-            color: #ffedf6; background: rgba(36,16,43,.68);
-            box-shadow: 0 0 18px rgba(255,173,215,.15);
-            pointer-events: none; opacity: 0;
-            transition: opacity .28s ease, transform .28s ease;
+            position: fixed; z-index: 36; left: 50%; bottom: 27%;
+            width: max-content; max-width: 90vw; padding: 14px 34px;
+            border-radius: 40px; transform: translate(-50%, 8px);
+            font: 700 clamp(23px, 5.2vw, 34px) 'Quicksand', 'Mali', sans-serif; text-align: center;
+            color: #fff0f7; background: rgba(36, 12, 45, 0.88);
+            border: 2.5px solid rgba(255, 182, 218, 0.75);
+            box-shadow: 0 0 30px rgba(255, 105, 180, 0.55), inset 0 0 18px rgba(255, 192, 203, 0.25);
+            text-shadow: 0 0 14px rgba(255, 105, 180, 0.95), 0 0 28px rgba(255, 20, 147, 0.75);
+            pointer-events: auto; cursor: pointer; opacity: 0;
+            transition: opacity .25s ease, transform .25s ease, background .3s ease, border-color .3s ease, box-shadow .3s ease;
+            user-select: none; -webkit-user-select: none;
         }
         #music-wait-hint.show { opacity: 1; transform: translate(-50%, 0); }
+        #music-wait-hint.ready-to-click {
+            background: linear-gradient(135deg, rgba(255, 75, 145, 0.94), rgba(255, 130, 185, 0.94));
+            border-color: #ffffff;
+            color: #ffffff;
+            text-shadow: 0 0 16px rgba(255, 255, 255, 0.95), 0 0 28px rgba(255, 20, 147, 0.85);
+            box-shadow: 0 0 38px rgba(255, 105, 180, 0.9), 0 0 75px rgba(255, 20, 147, 0.65);
+            animation: readyPulse 0.85s infinite alternate cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        @keyframes readyPulse {
+            0% { transform: translate(-50%, 0) scale(1.03); box-shadow: 0 0 24px rgba(255, 105, 180, 0.7); }
+            100% { transform: translate(-50%, 0) scale(1.14); box-shadow: 0 0 48px rgba(255, 255, 255, 0.95), 0 0 80px rgba(255, 105, 180, 0.95); }
+        }
         @media (max-width: 600px) {
             #tiny-lyric-zone { left: 7%; top: 61%; width: 56%; height: 25%; }
             #tiny-lyric-zone .lyric-line { font-size: clamp(16px, 4.4vw, 20px); line-height: 1.24; letter-spacing: 0; }
             #tiny-lyric-zone .lyric-line.compact { font-size: clamp(14px, 3.8vw, 18px); }
-            #music-wait-hint { font-size: 12px; }
+            #music-wait-hint { font-size: clamp(20px, 5.2vw, 27px); bottom: 27%; padding: 13px 28px; }
         }
 
     
@@ -3729,7 +3744,7 @@ body.luck-scene #khung-mat { z-index: 6; }
     #tiny-lyric-zone .lyric-line:first-child { top: 1%; }
     #tiny-lyric-zone .lyric-line:last-child { top: 53%; }
     #tiny-lyric-zone .lyric-line.compact { font-size: clamp(15px, 4.1vw, 19px); }
-    #music-wait-hint { max-width: 86vw; bottom: 5%; }
+    #music-wait-hint { max-width: 86vw; bottom: 27%; }
 }
 
 /* Nhánh điện thoại xoay ngang: giữ bố cục ngang rộng giống laptop,
@@ -3777,6 +3792,200 @@ body.luck-scene #khung-mat { z-index: 6; }
     #tiny-lyric-zone .lyric-line.compact { font-size: clamp(13px,2.7vh,16px); }
 }
 
+/* ==========================================================================
+   MASTER ANIMATION: DREAMY PINK FLORAL WONDERLAND (Blooming Flower Bouquet)
+   Hiển thị trước khi xuất hiện câu chữ: "Gửi đến cậu — cô gái..."
+   Lấy cảm hứng từ ảnh tham chiếu, chuẩn digital art 60fps
+   ========================================================================== */
+#blooming-bouquet-screen {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    background: radial-gradient(circle at 50% 45%, #fedbe4 0%, #f7c5d2 45%, #e599ad 80%, #ce7d93 100%);
+    overflow: hidden;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 1.2s ease;
+}
+#blooming-bouquet-screen.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+.flora-container {
+    position: absolute;
+    inset: -60px;
+    will-change: transform;
+    pointer-events: none;
+}
+.flora-layer {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+}
+.flora-layer.bg {
+    filter: blur(1.2px) brightness(0.96);
+    opacity: 0.98;
+}
+.flora-layer.mid {
+    filter: drop-shadow(0 6px 14px rgba(180, 50, 90, 0.28));
+}
+.flora-layer.fg {
+    filter: drop-shadow(0 10px 22px rgba(140, 30, 70, 0.35));
+}
+.flower-item {
+    position: absolute;
+    transform-origin: center center;
+    transform: translate(-50%, -50%) scale(0);
+    will-change: transform, opacity;
+}
+.flower-item.bloomed {
+    animation: flowerBloomIn 1.35s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+.flower-item.bloomed .flower-sway {
+    animation: gentleSway 6.5s ease-in-out infinite alternate;
+}
+.flower-item.sway-slow .flower-sway {
+    animation-duration: 9s;
+}
+.flower-item.sway-fast .flower-sway {
+    animation-duration: 5.5s;
+}
+.flower-item.sway-rev .flower-sway {
+    animation-direction: alternate-reverse;
+}
+@keyframes flowerBloomIn {
+    0% {
+        transform: translate(-50%, -50%) scale(0) rotate(var(--rot-start, -35deg));
+        opacity: 0;
+    }
+    60% {
+        transform: translate(-50%, -50%) scale(calc(var(--scale, 1) * 1.07)) rotate(calc(var(--rot, 0deg) + 3deg));
+        opacity: 1;
+    }
+    85% {
+        transform: translate(-50%, -50%) scale(calc(var(--scale, 1) * 0.98)) rotate(calc(var(--rot, 0deg) - 1deg));
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(var(--scale, 1)) rotate(var(--rot, 0deg));
+        opacity: 1;
+    }
+}
+@keyframes gentleSway {
+    0% {
+        transform: rotate(0deg) translate(0, 0) scale(1);
+    }
+    50% {
+        transform: rotate(2deg) translate(2px, -3px) scale(1.012);
+    }
+    100% {
+        transform: rotate(-1.8deg) translate(-2px, 2px) scale(0.992);
+    }
+}
+.ambient-glow {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: radial-gradient(circle at 50% 45%, rgba(255, 255, 255, 0.35) 0%, rgba(255, 220, 235, 0.15) 50%, transparent 80%);
+    mix-blend-mode: soft-light;
+}
+.light-sweep {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(135deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.18) 48%, rgba(255,255,255,0) 70%);
+    animation: sweepShift 12s infinite ease-in-out alternate;
+}
+@keyframes sweepShift {
+    0% { transform: translateY(-10%) rotate(-5deg); opacity: 0.4; }
+    100% { transform: translateY(10%) rotate(5deg); opacity: 0.8; }
+}
+#petals-canvas {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 20;
+}
+.bouquet-quote {
+    position: absolute;
+    bottom: 10%;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 30;
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: clamp(17px, 3.5vw, 32px);
+    font-weight: 700;
+    color: #ffffff;
+    letter-spacing: clamp(1.5px, 0.5vw, 4px);
+    text-align: center;
+    white-space: nowrap;
+    text-shadow: 
+      0 0 12px rgba(255, 255, 255, 1),
+      0 0 24px rgba(244, 114, 182, 0.95),
+      0 0 45px rgba(225, 29, 72, 0.75),
+      0 3px 12px rgba(70, 10, 30, 0.8);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 1.2s ease, transform 1.2s ease;
+}
+.bouquet-quote.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+    animation: lyricGlowPulse 3s infinite alternate ease-in-out;
+}
+@keyframes lyricGlowPulse {
+    0% { text-shadow: 0 0 12px rgba(255,255,255,0.95), 0 0 24px rgba(244,114,182,0.85), 0 0 40px rgba(225,29,72,0.65), 0 3px 12px rgba(70,10,30,0.8); }
+    100% { text-shadow: 0 0 18px rgba(255,255,255,1), 0 0 35px rgba(255,210,230,1), 0 0 60px rgba(225,29,72,0.9), 0 3px 12px rgba(70,10,30,0.85); }
+}
+#bouquet-next-btn {
+    position: absolute;
+    bottom: 3.5%;
+    left: 50%;
+    transform: translateX(-50%) scale(0.9);
+    z-index: 40;
+    padding: 10px 32px;
+    font-family: 'Quicksand', 'Mali', sans-serif;
+    font-size: clamp(16px, 2.5vw, 20px);
+    font-weight: 700;
+    color: #ffffff;
+    background: linear-gradient(135deg, rgba(251, 113, 133, 0.94), rgba(225, 29, 72, 0.94));
+    border: 1.5px solid rgba(255, 255, 255, 0.92);
+    border-radius: 999px;
+    box-shadow: 0 0 25px rgba(251, 113, 133, 0.75), 0 4px 16px rgba(120, 20, 50, 0.45);
+    cursor: pointer;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.8s ease, transform 0.4s ease, box-shadow 0.3s ease;
+    user-select: none;
+    -webkit-user-select: none;
+}
+#bouquet-next-btn.show {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateX(-50%) scale(1);
+    animation: btnPulse 2s infinite alternate ease-in-out;
+}
+#bouquet-next-btn:hover {
+    transform: translateX(-50%) scale(1.08);
+    box-shadow: 0 0 35px rgba(255, 255, 255, 0.95), 0 0 50px rgba(244, 114, 182, 0.95);
+}
+@keyframes btnPulse {
+    0% { transform: translateX(-50%) scale(1); box-shadow: 0 0 20px rgba(251, 113, 133, 0.7); }
+    100% { transform: translateX(-50%) scale(1.05); box-shadow: 0 0 32px rgba(255, 255, 255, 0.85), 0 0 50px rgba(251, 113, 133, 0.9); }
+}
+@media (max-width: 600px) {
+    .bouquet-quote {
+        bottom: 12%;
+        font-size: clamp(15px, 4.2vw, 21px);
+        letter-spacing: 1.2px;
+        white-space: normal;
+        width: 92vw;
+    }
+    #bouquet-next-btn {
+        bottom: 4%;
+        padding: 10px 28px;
+        font-size: 16px;
+    }
+}
 </style>
 
 <style id="tiny-vinyl-desktop">
@@ -6663,7 +6872,7 @@ html.tiny-pc-beauty-v12 #uiverse-starfield #stars3 {
     <!-- Fonts & Icons for Falling Love -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Mali:ital,wght@0,300;0,400;0,600;0,700;1,400&family=Pacifico&family=Noto+Sans:wght@300;400;500;700&family=Be+Vietnam+Pro:wght@600;700&family=Quicksand:wght@500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Mali:ital,wght@0,300;0,400;0,600;0,700;1,400&family=Pacifico&family=Noto+Sans:wght@300;400;500;700&family=Be+Vietnam+Pro:wght@600;700&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
     <!-- Styles for Falling Love -->
@@ -7253,14 +7462,76 @@ html.tiny-pc-beauty-v12 #uiverse-starfield #stars3 {
             tinySoundtrack.muted = false;
         } catch (_) {}
         let musicHintTimer = null;
-        const musicWaitMessages = ['đợi chút xíu đii', 'đợi chút nữa thui', 'xíu nữa', 'sắp được rùi', '1 chút thuii'];
-        function showMusicWaitHint() {
-            const msg = musicWaitMessages[Math.floor(Math.random() * musicWaitMessages.length)];
-            musicWaitHint.textContent = msg;
+        const WAIT_PHRASES = ["xíu nữa", "sắp được rùi ", "1 chút xíu nữa "];
+        let waitRepeatTimer = null;
+        let waitPhraseIdx = 0;
+        let isReadyForBeauty = false;
+
+        function startWaitRepeat() {
+            if (clickCount !== 2) return;
+            isReadyForBeauty = false;
+            waitPhraseIdx = 0;
+            musicWaitHint.classList.remove('ready-to-click');
+            musicWaitHint.textContent = WAIT_PHRASES[0];
             musicWaitHint.classList.add('show');
-            clearTimeout(musicHintTimer);
-            musicHintTimer = setTimeout(() => musicWaitHint.classList.remove('show'), 1700);
+            clearInterval(waitRepeatTimer);
+            waitRepeatTimer = setInterval(() => {
+                if (isReadyForBeauty || clickCount !== 2) return;
+                waitPhraseIdx = (waitPhraseIdx + 1) % WAIT_PHRASES.length;
+                musicWaitHint.style.transform = 'translate(-50%, 4px) scale(0.97)';
+                musicWaitHint.style.opacity = '0.75';
+                setTimeout(() => {
+                    if (isReadyForBeauty || clickCount !== 2) return;
+                    musicWaitHint.textContent = WAIT_PHRASES[waitPhraseIdx];
+                    musicWaitHint.style.transform = 'translate(-50%, 0) scale(1)';
+                    musicWaitHint.style.opacity = '1';
+                }, 120);
+            }, 1250);
         }
+
+        function stopWaitRepeat() {
+            clearInterval(waitRepeatTimer);
+            waitRepeatTimer = null;
+        }
+
+        function triggerReadyToClick() {
+            if (clickCount !== 2) return;
+            if (isReadyForBeauty) return;
+            isReadyForBeauty = true;
+            stopWaitRepeat();
+            clearTimeout(musicHintTimer);
+            musicWaitHint.textContent = "được ròi bấm đi ạ";
+            musicWaitHint.classList.add('show', 'ready-to-click');
+            musicWaitHint.style.transform = '';
+            musicWaitHint.style.opacity = '';
+        }
+
+        function showMusicWaitHint() {
+            if (isReadyForBeauty) {
+                triggerReadyToClick();
+                return;
+            }
+            waitPhraseIdx = (waitPhraseIdx + 1) % WAIT_PHRASES.length;
+            musicWaitHint.textContent = WAIT_PHRASES[waitPhraseIdx];
+            musicWaitHint.classList.add('show');
+            musicWaitHint.style.transform = 'translate(-50%, -4px) scale(1.08)';
+            setTimeout(() => {
+                if (!isReadyForBeauty && clickCount === 2) {
+                    musicWaitHint.style.transform = 'translate(-50%, 0) scale(1)';
+                }
+            }, 160);
+        }
+
+        musicWaitHint.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (clickCount === 2) {
+                if (isReadyForBeauty) {
+                    advanceToBeautyScene();
+                } else {
+                    showMusicWaitHint();
+                }
+            }
+        });
 
         function startMusicIfAllowed() {
             try {
@@ -7330,10 +7601,9 @@ html.tiny-pc-beauty-v12 #uiverse-starfield #stars3 {
         tinySoundtrack.addEventListener('timeupdate', () => {
             const t = tinySoundtrack.currentTime || 0;
             // Khi đang ở cảnh 2 (Text 3: "Hôm nay tớ nhận lệnh...") và nhạc chạm mốc 9.70s:
-            // TỰ ĐỘNG CHUYỂN CẢNH NGAY LẬP TỨC sang "ui cậu đẹp quá"!
-            // Nhờ đó câu hát "người ta nói chẳng ai hiểu" vang lên CÙNG LÚC với "ui cậu đẹp quá"!
+            // Hiển thị animation nút/thông báo "được ròi bấm đi ạ"
             if (clickCount === 2 && t >= MUSIC_HOLD_TIME) {
-                advanceToBeautyScene();
+                triggerReadyToClick();
             }
             if (activeWish === 'smile') syncLyricWithMusic();
         });
@@ -7413,20 +7683,22 @@ html.tiny-pc-beauty-v12 #uiverse-starfield #stars3 {
             if (clickCount !== 2) return;
             clickCount = 3;
             canClick = false;
-            setTimeout(() => { canClick = true; }, 600);
+            setTimeout(() => { canClick = true; }, 1800);
+            stopWaitRepeat();
             musicAllowedPastGate = true;
             clearTimeout(musicAutoAdvanceTimer);
             musicAutoAdvanceTimer = null;
             clearTimeout(musicHintTimer);
-            musicWaitHint?.classList.remove('show');
+            musicWaitHint?.classList.remove('show', 'ready-to-click');
             hideIntroNudge();
 
             // Khóa đồng bộ tuyệt đối: đảm bảo đúng giây 9.70s tiếng hát "người ta nói chẳng ai hiểu" cất lên
             startMusicIfAllowed();
             try {
                 const cur = tinySoundtrack.currentTime || 0;
-                // Nếu âm thanh đang lệch quá 0.12s so với 9.70s (hoặc bị trễ/tua nhanh), căn chỉnh về đúng 9.70s
-                if (Math.abs(cur - MUSIC_HOLD_TIME) > 0.12) {
+                // Nếu âm thanh chưa kịp chạy đến 9.70s (ví dụ mới bật), đồng bộ tới 9.70s.
+                // Nếu âm thanh đang phát tự nhiên qua 9.70s, giữ nguyên liên tục, không cắt / tua lại.
+                if (cur < MUSIC_HOLD_TIME - 0.2) {
                     tinySoundtrack.currentTime = MUSIC_HOLD_TIME;
                 }
                 if (tinySoundtrack.paused) {
@@ -7471,36 +7743,15 @@ html.tiny-pc-beauty-v12 #uiverse-starfield #stars3 {
             startMusicIfAllowed();
 
             if (clickCount === 2) {
-                const curTime = tinySoundtrack.currentTime || 0;
-                const isPlaying = !tinySoundtrack.paused && curTime > 0.05;
-
-                // Nếu nhạc đang phát và chưa tới mốc hát 9.70s ("người ta nói chẳng ai hiểu"):
-                if (isPlaying && curTime < MUSIC_HOLD_TIME - 0.15) {
-                    waitClickCount++;
-                    showMusicWaitHint();
-
-                    // Nếu bấm liên tiếp từ 3 lần trở lên: chuyển ngay và tua nhạc đến đúng 9.70s
-                    // để tiếng hát "người ta nói chẳng ai hiểu" VẪN cất lên đúng lúc "ui cậu đẹp quá"!
-                    if (waitClickCount >= 3) {
-                        try {
-                            tinySoundtrack.currentTime = MUSIC_HOLD_TIME;
-                        } catch (_) {}
-                        advanceToBeautyScene();
-                        return;
-                    }
-
-                    // Tự động chuyển cảnh đúng mốc 9.70s để đồng bộ hoàn hảo
-                    if (!musicAutoAdvanceTimer) {
-                        const waitMs = Math.max(100, (MUSIC_HOLD_TIME - curTime) * 1000);
-                        musicAutoAdvanceTimer = setTimeout(() => {
-                            advanceToBeautyScene();
-                        }, waitMs);
-                    }
+                if (isReadyForBeauty) {
+                    advanceToBeautyScene();
                     return;
                 }
 
-                // Nếu nhạc đã qua 9.70s HOẶC trên mobile nhạc chưa chạy:
-                advanceToBeautyScene();
+                // Nếu nhạc chưa tới mốc 9.70s ("người ta nói chẳng ai hiểu"):
+                // User yêu cầu: "phải repeat các từ đó đến khi đoạn nhạc chạy đến đoạn 'người ta nói chẳng ai hiểu' chứ không phải cắt / skip đoạn nhạc"
+                // Tuyệt đối KHÔNG cắt / skip đoạn nhạc khi click!
+                showMusicWaitHint();
                 return;
             }
 
@@ -7524,23 +7775,16 @@ html.tiny-pc-beauty-v12 #uiverse-starfield #stars3 {
                 text3.classList.add('hien-thi');
                 batDauLiec();
 
-                // Nếu người xem ở lại cảnh 2 quá lâu khiến nhạc đã vượt qua 7.2s:
-                // Ta tua nhẹ lại 3.5s ("vì đã lỡ yêu em rồi") để họ có đủ ~6.2s thong thả đọc text 3
-                // trước khi tiếng hát "người ta nói chẳng ai hiểu" (9.70s) bùng nổ cùng cảnh đẹp!
-                const curT = tinySoundtrack.currentTime || 0;
-                if (curT > 7.2) {
-                    try {
-                        tinySoundtrack.currentTime = 3.5;
-                    } catch (_) {}
-                }
+                // Kích hoạt lặp các từ "xíu nữa", "sắp được rùi ", "1 chút xíu nữa "
+                startWaitRepeat();
 
-                // Lên lịch tự động chuyển sang "ui cậu đẹp quá" chính xác lúc chạm mốc 9.70s
+                // Lên lịch kích hoạt "được ròi bấm đi ạ" chính xác lúc chạm mốc 9.70s
                 clearTimeout(musicAutoAdvanceTimer);
-                const updatedTime = tinySoundtrack.currentTime || 0;
-                const remainMs = Math.max(100, (MUSIC_HOLD_TIME - updatedTime) * 1000);
+                const curT = tinySoundtrack.currentTime || 0;
+                const remainMs = Math.max(100, (MUSIC_HOLD_TIME - curT) * 1000);
                 musicAutoAdvanceTimer = setTimeout(() => {
                     if (clickCount === 2) {
-                        advanceToBeautyScene();
+                        triggerReadyToClick();
                     }
                 }, remainMs);
             }
@@ -7826,7 +8070,7 @@ html.tiny-pc-beauty-v12 #uiverse-starfield #stars3 {
                 if (activeWish !== 'beauty') return;
                 canClick = true;
                 henChopMat();
-            }, 1250);
+            }, 3200);
         }
 
         // Logic từ file mẫu Tiny nháy mắt bắn sao: morph viền vuông thành nét cong,
@@ -8254,7 +8498,7 @@ html.tiny-pc-beauty-v12 #uiverse-starfield #stars3 {
                 if (activeWish !== 'smile') return;
                 canClick = true;
                 henChopMat();
-            }, 1100);
+            }, 3500);
         }
 
         // Hạt sáng của file cỏ mẫu: phát ra từ bông lá rồi bay lên/mờ dần.
@@ -9082,7 +9326,7 @@ const SPRITES = [taoSprite(1.02, 140), taoSprite(.96, 136), taoSprite(1.08, 145)
             }
             setTimeout(() => {
                 if (activeWish === 'clover') canClick = true;
-            }, 760);
+            }, 3200);
         }
 
         function phatHieuUngCamLayDiMuot() {
@@ -9837,12 +10081,15 @@ const SPRITES = [taoSprite(1.02, 140), taoSprite(.96, 136), taoSprite(1.08, 145)
                  tinyRealityHost.classList.add('cute-ready');
                  tinyRealityScene.classList.add('reality-cute');
                  // Sau khi lời chúc hiển thị trọn vẹn, tự động hoặc khi click chuyển sang Falling Love
+                 let canClickReality = false;
+                 setTimeout(() => { canClickReality = true; }, 3200);
                  setTimeout(() => {
                      if (!window.__fallingLoveTransitionStarted && tinyRealityScene.classList.contains('reality-cute')) {
                          transitionToFallingLove();
                      }
-                 }, 3800);
+                 }, 8500);
                  document.addEventListener('click', function onTinyClick(e) {
+                     if (!canClickReality) return;
                      if (!window.__fallingLoveTransitionStarted && tinyRealityScene.classList.contains('reality-cute')) {
                          document.removeEventListener('click', onTinyClick);
                          transitionToFallingLove();
@@ -11118,6 +11365,268 @@ if(window.TINY_PERF && !window.TINY_PERF.mobile){
   sync();
 })();
 </script>
+<!-- ═════════════════════════════════════════════════════════════
+     BLOOMING FLOWER BOUQUET SCREEN & SVG DEFS
+     ═════════════════════════════════════════════════════════════ -->
+<svg style="position: absolute; width: 0; height: 0; overflow: hidden;" aria-hidden="true">
+  <defs>
+    <!-- 1. BLUSH ENGLISH ROSE GRADIENTS -->
+    <radialGradient id="g-blush-core" cx="50%" cy="52%" r="48%">
+      <stop offset="0%" stop-color="#9f1239"/>
+      <stop offset="28%" stop-color="#be123c"/>
+      <stop offset="60%" stop-color="#e11d48"/>
+      <stop offset="100%" stop-color="#fb7185"/>
+    </radialGradient>
+    <linearGradient id="g-blush-outer" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="35%" stop-color="#fff1f2"/>
+      <stop offset="70%" stop-color="#fecdd3"/>
+      <stop offset="100%" stop-color="#fb7185"/>
+    </linearGradient>
+    <linearGradient id="g-blush-mid" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#fecdd3"/>
+      <stop offset="50%" stop-color="#fda4af"/>
+      <stop offset="100%" stop-color="#f43f5e"/>
+    </linearGradient>
+    <linearGradient id="g-blush-petal-shade" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#fda4af"/>
+      <stop offset="60%" stop-color="#f43f5e"/>
+      <stop offset="100%" stop-color="#be123c"/>
+    </linearGradient>
+
+    <!-- 2. IVORY PEONY GRADIENTS -->
+    <radialGradient id="g-peony-core" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#fef08a"/>
+      <stop offset="35%" stop-color="#fde047"/>
+      <stop offset="60%" stop-color="#f472b6"/>
+      <stop offset="100%" stop-color="#fbcfe8"/>
+    </radialGradient>
+    <linearGradient id="g-peony-outer" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="55%" stop-color="#fff9f5"/>
+      <stop offset="85%" stop-color="#fce7f3"/>
+      <stop offset="100%" stop-color="#fbcfe8"/>
+    </linearGradient>
+    <linearGradient id="g-peony-cup" x1="100%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="60%" stop-color="#fff0f5"/>
+      <stop offset="100%" stop-color="#f472b6"/>
+    </linearGradient>
+
+    <!-- 3. CRIMSON VELVET ROSE GRADIENTS -->
+    <radialGradient id="g-crimson-core" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#4c0519"/>
+      <stop offset="35%" stop-color="#881337"/>
+      <stop offset="70%" stop-color="#be123c"/>
+      <stop offset="100%" stop-color="#e11d48"/>
+    </radialGradient>
+    <linearGradient id="g-crimson-petal" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fb7185"/>
+      <stop offset="35%" stop-color="#be123c"/>
+      <stop offset="80%" stop-color="#881337"/>
+      <stop offset="100%" stop-color="#4c0519"/>
+    </linearGradient>
+
+    <!-- 4. HYDRANGEA / MAUVE FLORETS GRADIENTS -->
+    <radialGradient id="g-mauve-petal" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="45%" stop-color="#f5d0fe"/>
+      <stop offset="80%" stop-color="#d8a3c5"/>
+      <stop offset="100%" stop-color="#a855f7"/>
+    </radialGradient>
+
+    <!-- 5. PEACH LILY / BLOSSOM GRADIENTS -->
+    <linearGradient id="g-peach-petal" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="30%" stop-color="#fff7ed"/>
+      <stop offset="65%" stop-color="#fed7aa"/>
+      <stop offset="100%" stop-color="#fb923c"/>
+    </linearGradient>
+
+    <!-- ========================================================
+         FLOWER 1: LUSH BLUSH CABBAGE ROSE (David Austin Multi-layered)
+         ======================================================== -->
+    <g id="flower-blush-rose">
+      <!-- Outer Ruffled Petals -->
+      <path d="M 100 15 C 138 6, 180 38, 178 80 C 176 114, 142 135, 100 125 C 58 135, 24 114, 22 80 C 20 38, 62 6, 100 15 Z" fill="url(#g-blush-outer)"/>
+      <path d="M 15 100 C 6 138, 38 180, 80 178 C 114 176, 135 142, 125 100 C 135 58, 114 24, 80 22 C 38 20, 6 62, 15 100 Z" fill="url(#g-blush-outer)"/>
+      <path d="M 100 185 C 62 194, 20 162, 22 120 C 24 86, 58 65, 100 75 C 142 65, 176 86, 178 120 C 180 162, 138 194, 100 185 Z" fill="url(#g-blush-outer)"/>
+      <path d="M 185 100 C 194 62, 162 20, 120 22 C 86 24, 65 58, 75 100 C 65 142, 86 176, 120 178 C 162 180, 194 138, 185 100 Z" fill="url(#g-blush-outer)"/>
+
+      <!-- Second Tier Petals -->
+      <path d="M 100 32 C 135 25, 168 55, 164 92 C 160 124, 128 138, 100 128 C 72 138, 40 124, 36 92 C 32 55, 65 25, 100 32 Z" fill="url(#g-blush-mid)"/>
+      <path d="M 32 100 C 25 135, 55 168, 92 164 C 124 160, 138 128, 128 100 C 138 72, 124 40, 92 36 C 55 32, 25 65, 32 100 Z" fill="url(#g-blush-mid)"/>
+
+      <!-- Overlapping Swirl Petals (Signature Cabbage Rose) -->
+      <path d="M 60 65 C 80 40, 125 40, 148 68 C 165 92, 155 132, 132 148 C 108 162, 70 156, 52 132 C 35 110, 40 82, 60 65 Z" fill="url(#g-blush-petal-shade)" opacity="0.88"/>
+      <path d="M 140 135 C 120 160, 75 160, 52 132 C 35 108, 45 68, 68 52 C 92 35, 132 45, 148 68 C 165 92, 160 118, 140 135 Z" fill="url(#g-blush-outer)" opacity="0.92"/>
+
+      <!-- Inner Dense Swirls -->
+      <path d="M 75 80 C 85 62, 120 62, 132 82 C 142 100, 130 125, 112 130 C 92 135, 72 120, 68 100 C 65 88, 70 82, 75 80 Z" fill="url(#g-blush-mid)"/>
+      <path d="M 100 68 C 120 62, 134 76, 132 96 C 130 112, 114 120, 100 115 C 86 120, 70 112, 68 96 C 66 76, 80 62, 100 68 Z" fill="url(#g-blush-core)"/>
+      
+      <!-- Core Buds & Folds -->
+      <path d="M 88 88 C 84 76, 102 70, 114 78 C 122 86, 118 98, 106 102 C 96 105, 90 95, 88 88 Z" fill="#9f1239"/>
+      <path d="M 94 89 C 92 82, 104 80, 108 84 C 111 88, 108 94, 102 95 C 97 96, 94 92, 94 89 Z" fill="#fff1f2" opacity="0.95"/>
+      <path d="M 98 90 C 96 87, 102 85, 105 88 C 106 90, 105 93, 102 93 Z" fill="#be123c"/>
+    </g>
+
+    <!-- ========================================================
+         FLOWER 2: CREAMY IVORY PEONY WITH GOLDEN STAMENS
+         ======================================================== -->
+    <g id="flower-peony-white">
+      <!-- Large Ruffled Outer Petals -->
+      <path d="M 100 8 Q 148 2, 178 35 Q 202 68, 188 116 Q 174 162, 134 186 Q 95 204, 54 186 Q 14 162, 4 116 Q -8 68, 18 35 Q 48 2, 100 8 Z" fill="url(#g-peony-outer)"/>
+      <path d="M 100 24 C 138 18, 172 44, 170 86 C 168 126, 134 160, 100 160 C 66 160, 32 126, 30 86 C 28 44, 62 18, 100 24 Z" fill="#ffffff" opacity="0.96"/>
+      <path d="M 100 42 C 128 36, 152 58, 150 90 C 148 118, 124 142, 100 142 C 76 142, 52 118, 50 90 C 48 58, 72 36, 100 42 Z" fill="url(#g-peony-cup)"/>
+
+      <!-- Layered Ruffled Inner Petals -->
+      <path d="M 72 62 C 94 45, 128 50, 140 72 C 150 94, 140 122, 118 128 C 96 134, 74 118, 66 96 C 60 78, 66 68, 72 62 Z" fill="#ffffff" opacity="0.92"/>
+      <path d="M 128 72 C 138 94, 128 126, 106 132 C 84 138, 62 116, 72 90 C 82 68, 112 62, 128 72 Z" fill="#fff5f8" opacity="0.88"/>
+
+      <!-- Golden Stamen Radiance -->
+      <circle cx="100" cy="96" r="28" fill="url(#g-peony-core)" opacity="0.85"/>
+      <circle cx="98" cy="94" r="17" fill="#f472b6" opacity="0.5"/>
+
+      <!-- Golden Amber Stamens (Dots & Delicate Filaments) -->
+      <g stroke="#b45309" stroke-width="1.2" opacity="0.8">
+        <line x1="100" y1="96" x2="100" y2="78"/>
+        <line x1="100" y1="96" x2="115" y2="84"/>
+        <line x1="100" y1="96" x2="118" y2="98"/>
+        <line x1="100" y1="96" x2="112" y2="112"/>
+        <line x1="100" y1="96" x2="98" y2="115"/>
+        <line x1="100" y1="96" x2="84" y2="108"/>
+        <line x1="100" y1="96" x2="82" y2="94"/>
+        <line x1="100" y1="96" x2="88" y2="82"/>
+      </g>
+      <g fill="#fbbf24">
+        <circle cx="100" cy="78" r="3.6"/>
+        <circle cx="115" cy="84" r="3.4"/>
+        <circle cx="118" cy="98" r="3.5"/>
+        <circle cx="112" cy="112" r="3.4"/>
+        <circle cx="98" cy="115" r="3.6"/>
+        <circle cx="84" cy="108" r="3.4"/>
+        <circle cx="82" cy="94" r="3.5"/>
+        <circle cx="88" cy="82" r="3.4"/>
+        <!-- Inner ring of glowing stamens -->
+        <circle cx="100" cy="89" r="2.8" fill="#fef08a"/>
+        <circle cx="107" cy="95" r="2.8" fill="#fef08a"/>
+        <circle cx="101" cy="102" r="2.8" fill="#fef08a"/>
+        <circle cx="93" cy="96" r="2.8" fill="#fef08a"/>
+        <circle cx="100" cy="96" r="3.4" fill="#ffffff"/>
+      </g>
+    </g>
+
+    <!-- ========================================================
+         FLOWER 3: DEEP CRIMSON VELVET ROSE
+         ======================================================== -->
+    <g id="flower-crimson-rose">
+      <path d="M 100 15 C 142 8, 184 38, 180 84 C 178 120, 140 144, 100 128 C 60 144, 22 120, 20 84 C 16 38, 58 8, 100 15 Z" fill="url(#g-crimson-petal)"/>
+      <path d="M 15 100 C 8 142, 38 184, 84 180 C 120 178, 144 140, 128 100 C 144 60, 120 22, 84 20 C 38 16, 8 58, 15 100 Z" fill="url(#g-crimson-petal)"/>
+      <path d="M 100 185 C 58 192, 16 162, 20 118 C 22 82, 60 58, 100 74 C 140 58, 178 82, 180 118 C 184 162, 142 192, 100 185 Z" fill="url(#g-crimson-petal)"/>
+      <path d="M 100 45 C 128 36, 158 60, 154 92 C 150 120, 122 135, 100 125 C 78 135, 50 120, 46 92 C 42 60, 72 36, 100 45 Z" fill="url(#g-crimson-core)"/>
+      <path d="M 84 84 C 80 72, 104 65, 118 76 C 126 84, 120 98, 108 102 C 96 106, 90 94, 84 84 Z" fill="#f43f5e" opacity="0.9"/>
+      <path d="M 94 86 C 91 80, 104 76, 108 81 C 111 86, 107 92, 101 93 C 96 94, 94 90, 94 86 Z" fill="#fda4af" opacity="0.95"/>
+    </g>
+
+    <!-- ========================================================
+         FLOWER 4: MAUVE HYDRANGEA CLUSTER (Lush Florets)
+         ======================================================== -->
+    <g id="flower-hydrangea">
+      <g transform="translate(45, 38) scale(0.95)">
+        <ellipse cx="15" cy="6" rx="10" ry="7" fill="url(#g-mauve-petal)"/>
+        <ellipse cx="24" cy="15" rx="7" ry="10" fill="url(#g-mauve-petal)"/>
+        <ellipse cx="15" cy="24" rx="10" ry="7" fill="url(#g-mauve-petal)"/>
+        <ellipse cx="6" cy="15" rx="7" ry="10" fill="url(#g-mauve-petal)"/>
+        <circle cx="15" cy="15" r="2.8" fill="#ffffff"/>
+      </g>
+      <g transform="translate(95, 32) scale(1.1)">
+        <ellipse cx="15" cy="6" rx="10" ry="7" fill="url(#g-mauve-petal)"/>
+        <ellipse cx="24" cy="15" rx="7" ry="10" fill="url(#g-mauve-petal)"/>
+        <ellipse cx="15" cy="24" rx="10" ry="7" fill="url(#g-mauve-petal)"/>
+        <ellipse cx="6" cy="15" rx="7" ry="10" fill="url(#g-mauve-petal)"/>
+        <circle cx="15" cy="15" r="2.8" fill="#ffffff"/>
+      </g>
+      <g transform="translate(140, 52) scale(0.98)">
+        <ellipse cx="15" cy="6" rx="10" ry="7" fill="url(#g-mauve-petal)"/>
+        <ellipse cx="24" cy="15" rx="7" ry="10" fill="url(#g-mauve-petal)"/>
+        <ellipse cx="15" cy="24" rx="10" ry="7" fill="url(#g-mauve-petal)"/>
+        <ellipse cx="6" cy="15" rx="7" ry="10" fill="url(#g-mauve-petal)"/>
+        <circle cx="15" cy="15" r="2.8" fill="#ffffff"/>
+      </g>
+      <g transform="translate(30, 80) scale(1.02)">
+        <ellipse cx="15" cy="6" rx="10" ry="7" fill="url(#g-mauve-petal)"/>
+        <ellipse cx="24" cy="15" rx="7" ry="10" fill="url(#g-mauve-petal)"/>
+        <ellipse cx="15" cy="24" rx="10" ry="7" fill="url(#g-mauve-petal)"/>
+        <ellipse cx="6" cy="15" rx="7" ry="10" fill="url(#g-mauve-petal)"/>
+        <circle cx="15" cy="15" r="2.8" fill="#ffffff"/>
+      </g>
+      <g transform="translate(78, 80) scale(1.2)">
+        <ellipse cx="15" cy="6" rx="10" ry="7" fill="url(#g-mauve-petal)"/>
+        <ellipse cx="24" cy="15" rx="7" ry="10" fill="url(#g-mauve-petal)"/>
+        <ellipse cx="15" cy="24" rx="10" ry="7" fill="url(#g-mauve-petal)"/>
+        <ellipse cx="6" cy="15" rx="7" ry="10" fill="url(#g-mauve-petal)"/>
+        <circle cx="15" cy="15" r="3" fill="#ffffff"/>
+      </g>
+      <g transform="translate(128, 90) scale(1.1)">
+        <ellipse cx="15" cy="6" rx="10" ry="7" fill="url(#g-mauve-petal)"/>
+        <ellipse cx="24" cy="15" rx="7" ry="10" fill="url(#g-mauve-petal)"/>
+        <ellipse cx="15" cy="24" rx="10" ry="7" fill="url(#g-mauve-petal)"/>
+        <ellipse cx="6" cy="15" rx="7" ry="10" fill="url(#g-mauve-petal)"/>
+        <circle cx="15" cy="15" r="2.8" fill="#ffffff"/>
+      </g>
+      <g transform="translate(50, 125) scale(1)">
+        <ellipse cx="15" cy="6" rx="10" ry="7" fill="url(#g-mauve-petal)"/>
+        <ellipse cx="24" cy="15" rx="7" ry="10" fill="url(#g-mauve-petal)"/>
+        <ellipse cx="15" cy="24" rx="10" ry="7" fill="url(#g-mauve-petal)"/>
+        <ellipse cx="6" cy="15" rx="7" ry="10" fill="url(#g-mauve-petal)"/>
+        <circle cx="15" cy="15" r="2.8" fill="#ffffff"/>
+      </g>
+      <g transform="translate(100, 132) scale(1.05)">
+        <ellipse cx="15" cy="6" rx="10" ry="7" fill="url(#g-mauve-petal)"/>
+        <ellipse cx="24" cy="15" rx="7" ry="10" fill="url(#g-mauve-petal)"/>
+        <ellipse cx="15" cy="24" rx="10" ry="7" fill="url(#g-mauve-petal)"/>
+        <ellipse cx="6" cy="15" rx="7" ry="10" fill="url(#g-mauve-petal)"/>
+        <circle cx="15" cy="15" r="2.8" fill="#ffffff"/>
+      </g>
+    </g>
+
+    <!-- ========================================================
+         FLOWER 5: PEACH BLOSSOM / LILY WITH FRECKLES
+         ======================================================== -->
+    <g id="flower-peach-lily">
+      <g transform="translate(100, 100)">
+        <path d="M 0 -85 C 25 -65, 30 -25, 0 0 C -30 -25, -25 -65, 0 -85 Z" fill="url(#g-peach-petal)"/>
+        <path d="M 0 -85 C 25 -65, 30 -25, 0 0 C -30 -25, -25 -65, 0 -85 Z" fill="url(#g-peach-petal)" transform="rotate(72)"/>
+        <path d="M 0 -85 C 25 -65, 30 -25, 0 0 C -30 -25, -25 -65, 0 -85 Z" fill="url(#g-peach-petal)" transform="rotate(144)"/>
+        <path d="M 0 -85 C 25 -65, 30 -25, 0 0 C -30 -25, -25 -65, 0 -85 Z" fill="url(#g-peach-petal)" transform="rotate(216)"/>
+        <path d="M 0 -85 C 25 -65, 30 -25, 0 0 C -30 -25, -25 -65, 0 -85 Z" fill="url(#g-peach-petal)" transform="rotate(288)"/>
+
+        <!-- Freckles & Stamens -->
+        <circle cx="0" cy="0" r="14" fill="#ea580c" opacity="0.75"/>
+        <circle cx="4" cy="-14" r="1.8" fill="#7c2d12"/>
+        <circle cx="-4" cy="-18" r="1.6" fill="#7c2d12"/>
+        <circle cx="12" cy="-5" r="1.8" fill="#7c2d12"/>
+        <circle cx="-10" cy="6" r="1.6" fill="#7c2d12"/>
+        <circle cx="6" cy="12" r="1.8" fill="#7c2d12"/>
+        <circle cx="0" cy="0" r="4.5" fill="#fef08a"/>
+      </g>
+    </g>
+  </defs>
+</svg>
+
+<div id="blooming-bouquet-screen">
+  <div class="flora-container" id="flora-container">
+    <div class="flora-layer bg" id="layer-bg"></div>
+    <div class="flora-layer mid" id="layer-mid"></div>
+    <div class="flora-layer fg" id="layer-fg"></div>
+  </div>
+  <div class="ambient-glow"></div>
+  <div class="light-sweep"></div>
+  <canvas id="petals-canvas"></canvas>
+  <div class="bouquet-quote" id="bouquet-quote">“ CHỜ ANH CHÚT THÔI, MÙA ĐÔNG VỪA SANG ”</div>
+  <button id="bouquet-next-btn">Tiếp nào 🌸</button>
+</div>
 
 <!-- ═════════════════════════════════════════════════════════════
      FALLING LOVE EXPERIENCE CONTAINER (Hidden until Tiny finishes)
@@ -11277,11 +11786,307 @@ if(window.TINY_PERF && !window.TINY_PERF.mobile){
         const startWrap = document.getElementById('start-wrap');
         if (startWrap) startWrap.style.display = 'none';
 
-        // 6. Kích hoạt hiệu ứng chữ 3D hạt sao
-        window.__textStarted = true;
-        window.dispatchEvent(new CustomEvent('__textStart'));
+        // 6. Kích hoạt Animation hoa nở rực rỡ (Bó hoa bung nở rồi lan tỏa toàn màn hình)
+        // trước khi hiện dòng chữ 3D: "Gửi đến cậu — cô gái..."
+        if (typeof window.startBloomingBouquetScene === 'function') {
+          window.startBloomingBouquetScene(() => {
+            window.__textStarted = true;
+            window.dispatchEvent(new CustomEvent('__textStart'));
+          });
+        } else {
+          window.__textStarted = true;
+          window.dispatchEvent(new CustomEvent('__textStart'));
+        }
       }, 1000);
     }
+
+    // =========================================================================
+    // HÀM KHỞI TẠO MASTER ANIMATION: DREAMY PINK FLORAL WONDERLAND
+    // Ảnh 3: Bó hoa bung nở trung tâm + chữ "CHỜ ANH CHÚT THÔI, MÙA ĐÔNG VỪA SANG"
+    // Ảnh 2: Thảm hoa rực rỡ lộng lẫy bung nở lấp đầy toàn màn hình chuẩn 60fps
+    // =========================================================================
+    window.startBloomingBouquetScene = function (onComplete) {
+      const screen = document.getElementById('blooming-bouquet-screen');
+      const layerBg = document.getElementById('layer-bg');
+      const layerMid = document.getElementById('layer-mid');
+      const layerFg = document.getElementById('layer-fg');
+      const canvas = document.getElementById('petals-canvas');
+      const quote = document.getElementById('bouquet-quote');
+      const nextBtn = document.getElementById('bouquet-next-btn');
+
+      if (!screen || !layerBg || !layerMid || !layerFg || !canvas) {
+        if (typeof onComplete === 'function') onComplete();
+        return;
+      }
+
+      // 1. Reset trạng thái
+      layerBg.innerHTML = '';
+      layerMid.innerHTML = '';
+      layerFg.innerHTML = '';
+      if (quote) quote.classList.remove('show');
+      if (nextBtn) nextBtn.classList.remove('show');
+
+      screen.style.transition = 'opacity 1.2s ease';
+      screen.style.opacity = '0';
+      screen.style.display = 'block';
+      void screen.offsetWidth;
+      screen.classList.add('active');
+      screen.style.opacity = '1';
+
+      const FLOWER_TYPES = [
+        'flower-blush-rose',
+        'flower-peony-white',
+        'flower-crimson-rose',
+        'flower-hydrangea',
+        'flower-peach-lily'
+      ];
+
+      function createFlowerNode(type, x, y, size, rot, delay, swayClass) {
+        const el = document.createElement('div');
+        el.className = 'flower-item ' + (swayClass || 'sway-slow');
+        el.style.left = x + 'px';
+        el.style.top = y + 'px';
+        el.style.width = size + 'px';
+        el.style.height = size + 'px';
+        el.style.setProperty('--scale', 1);
+        el.style.setProperty('--rot', rot + 'deg');
+        el.style.setProperty('--rot-start', (rot - 30) + 'deg');
+        el.style.animationDelay = delay + 's';
+
+        const sway = document.createElement('div');
+        sway.className = 'flower-sway';
+        sway.style.width = '100%';
+        sway.style.height = '100%';
+
+        const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        svg.setAttribute('viewBox', '0 0 200 200');
+        svg.setAttribute('width', '100%');
+        svg.setAttribute('height', '100%');
+
+        const use = document.createElementNS('http://www.w3.org/2000/svg', 'use');
+        use.setAttributeNS('http://www.w3.org/1999/xlink', 'xlink:href', '#' + type);
+        svg.appendChild(use);
+        sway.appendChild(svg);
+        el.appendChild(sway);
+
+        return el;
+      }
+
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+      const cx = vw / 2;
+      const cy = vh / 2;
+      const isMobile = vw <= 600;
+      const scaleFactor = isMobile ? 0.74 : 1;
+
+      // 2. LAYER NỀN: THẢM HOA DÀY ĐẶC (Background Dense Base - Không để lộ khoảng trống)
+      const bgStep = isMobile ? 70 : 85;
+      const bgCols = Math.ceil(vw / bgStep) + 2;
+      const bgRows = Math.ceil(vh / bgStep) + 2;
+      for (let r = -1; r <= bgRows; r++) {
+        for (let c = -1; c <= bgCols; c++) {
+          const x = c * bgStep + (Math.random() - 0.5) * 32;
+          const y = r * bgStep + (Math.random() - 0.5) * 32;
+          const type = FLOWER_TYPES[(Math.abs(r * 3 + c * 2 + 1)) % FLOWER_TYPES.length];
+          const size = (isMobile ? 80 : 95) + Math.random() * 28;
+          const rot = Math.floor(Math.random() * 360);
+          const distFromCenter = Math.hypot(x - cx, y - cy);
+          const delay = 0.2 + (distFromCenter / Math.hypot(vw, vh)) * 1.8;
+          const sway = ['sway-slow', 'sway-fast', 'sway-rev'][Math.floor(Math.random() * 3)];
+          const node = createFlowerNode(type, x, y, size, rot, delay, sway);
+          layerBg.appendChild(node);
+        }
+      }
+
+      // 3. LAYER GIỮA: HOA TRUNG CẢNH RỰC RỠ ĐA SẮC
+      const midStep = isMobile ? 100 : 125;
+      const midCols = Math.ceil(vw / midStep) + 2;
+      const midRows = Math.ceil(vh / midStep) + 2;
+      for (let r = -1; r <= midRows; r++) {
+        for (let c = -1; c <= midCols; c++) {
+          const x = c * midStep + (Math.random() - 0.5) * 45;
+          const y = r * midStep + (Math.random() - 0.5) * 45;
+          const type = FLOWER_TYPES[(Math.abs(r * 2 + c * 3)) % FLOWER_TYPES.length];
+          const size = (isMobile ? 105 : 135) + Math.random() * 35;
+          const rot = Math.floor(Math.random() * 360);
+          const distFromCenter = Math.hypot(x - cx, y - cy);
+          const delay = 0.1 + (distFromCenter / Math.hypot(vw, vh)) * 1.5;
+          const sway = ['sway-slow', 'sway-fast', 'sway-rev'][Math.floor(Math.random() * 3)];
+          const node = createFlowerNode(type, x, y, size, rot, delay, sway);
+          layerMid.appendChild(node);
+        }
+      }
+
+      // 4. LAYER TIỀN CẢNH: CỤM HOA TÂM ĐIỂM HOÀNH TRÁNG (Statement Blossoms)
+      const fgPositions = [
+        // Cụm hoa lớn bung nở tâm điểm
+        { x: cx, y: cy - 10 * scaleFactor, size: 210 * scaleFactor, type: 'flower-peony-white', delay: 0.05 },
+        { x: cx - 105 * scaleFactor, y: cy - 28 * scaleFactor, size: 190 * scaleFactor, type: 'flower-blush-rose', delay: 0.25 },
+        { x: cx + 110 * scaleFactor, y: cy - 20 * scaleFactor, size: 195 * scaleFactor, type: 'flower-blush-rose', delay: 0.3 },
+        { x: cx - 55 * scaleFactor, y: cy + 85 * scaleFactor, size: 185 * scaleFactor, type: 'flower-crimson-rose', delay: 0.4 },
+        { x: cx + 65 * scaleFactor, y: cy + 80 * scaleFactor, size: 180 * scaleFactor, type: 'flower-peony-white', delay: 0.45 },
+        { x: cx - 140 * scaleFactor, y: cy + 55 * scaleFactor, size: 175 * scaleFactor, type: 'flower-hydrangea', delay: 0.5 },
+        { x: cx + 145 * scaleFactor, y: cy + 50 * scaleFactor, size: 170 * scaleFactor, type: 'flower-peach-lily', delay: 0.55 },
+        // Các điểm hoa điểm xuyết góc & khung viền lộng lẫy
+        { x: isMobile ? 35 : 70, y: isMobile ? 35 : 70, size: isMobile ? 150 : 220, type: 'flower-peony-white', delay: 0.7 },
+        { x: isMobile ? vw - 35 : vw - 70, y: isMobile ? 45 : 80, size: isMobile ? 160 : 230, type: 'flower-blush-rose', delay: 0.75 },
+        { x: isMobile ? 45 : 80, y: isMobile ? vh - 45 : vh - 90, size: isMobile ? 155 : 225, type: 'flower-crimson-rose', delay: 0.8 },
+        { x: isMobile ? vw - 45 : vw - 80, y: isMobile ? vh - 45 : vh - 80, size: isMobile ? 150 : 215, type: 'flower-peony-white', delay: 0.85 },
+        { x: cx - 250 * scaleFactor, y: cy - 85 * scaleFactor, size: 185 * scaleFactor, type: 'flower-blush-rose', delay: 0.6 },
+        { x: cx + 255 * scaleFactor, y: cy - 75 * scaleFactor, size: 180 * scaleFactor, type: 'flower-peach-lily', delay: 0.65 },
+        { x: cx - 260 * scaleFactor, y: cy + 105 * scaleFactor, size: 180 * scaleFactor, type: 'flower-crimson-rose', delay: 0.7 },
+        { x: cx + 270 * scaleFactor, y: cy + 110 * scaleFactor, size: 175 * scaleFactor, type: 'flower-hydrangea', delay: 0.75 }
+      ];
+
+      fgPositions.forEach(p => {
+        const rot = Math.floor(Math.random() * 360);
+        const sway = ['sway-slow', 'sway-fast', 'sway-rev'][Math.floor(Math.random() * 3)];
+        const node = createFlowerNode(p.type, p.x, p.y, p.size, rot, p.delay, sway);
+        layerFg.appendChild(node);
+      });
+
+      // Kích hoạt animation bung nở mượt mà
+      setTimeout(() => {
+        screen.querySelectorAll('.flower-item').forEach(el => el.classList.add('bloomed'));
+      }, 100);
+
+      // Hiển thị lời tựa "CHỜ ANH CHÚT THÔI, MÙA ĐÔNG VỪA SANG" lung linh
+      setTimeout(() => {
+        if (quote) quote.classList.add('show');
+      }, 1800);
+
+      // Hiển thị nút "Tiếp nào 🌸" sau khi đã thưởng thức hoa
+      setTimeout(() => {
+        if (nextBtn) nextBtn.classList.add('show');
+      }, 3600);
+
+      // 5. CÁNH HOA BAY CHUYỂN ĐỘNG TRÊN CANVAS (Fluttering Floating Petals Physics)
+      const ctx = canvas.getContext('2d');
+      function resizeCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+      }
+      resizeCanvas();
+      window.addEventListener('resize', resizeCanvas);
+
+      const petals = [];
+      const PETAL_COUNT = isMobile ? 22 : 36;
+      const PETAL_COLORS = ['#fecdd3', '#fda4af', '#fbcfe8', '#fff1f2', '#ffe4e6'];
+      for (let i = 0; i < PETAL_COUNT; i++) {
+        petals.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          size: 13 + Math.random() * 17,
+          speedY: 0.8 + Math.random() * 1.3,
+          speedX: (Math.random() - 0.5) * 0.8,
+          angle: Math.random() * Math.PI * 2,
+          angularSpeed: (Math.random() - 0.5) * 0.03,
+          alpha: 0.35 + Math.random() * 0.5,
+          color: PETAL_COLORS[Math.floor(Math.random() * PETAL_COLORS.length)]
+        });
+      }
+
+      function drawPetal(p) {
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate(p.angle);
+        ctx.globalAlpha = p.alpha;
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        ctx.moveTo(0, -p.size);
+        ctx.bezierCurveTo(p.size * 0.8, -p.size * 0.6, p.size * 0.8, p.size * 0.6, 0, p.size);
+        ctx.bezierCurveTo(-p.size * 0.8, p.size * 0.6, -p.size * 0.8, -p.size * 0.6, 0, -p.size);
+        ctx.fill();
+        ctx.restore();
+      }
+
+      let petalsRaf = null;
+      function animPetals() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        petals.forEach(p => {
+          p.y += p.speedY;
+          p.x += p.speedX + Math.sin(p.y * 0.015) * 0.5;
+          p.angle += p.angularSpeed;
+          if (p.y > canvas.height + 40) {
+            p.y = -30;
+            p.x = Math.random() * canvas.width;
+          }
+          drawPetal(p);
+        });
+        petalsRaf = requestAnimationFrame(animPetals);
+      }
+      petalsRaf = requestAnimationFrame(animPetals);
+
+      // 6. HIỆU ỨNG TƯƠNG TÁC PARALLAX 3D TỰ NHIÊN
+      let targetX = 0, targetY = 0;
+      let currentX = 0, currentY = 0;
+      const onMouseMove = (e) => {
+        targetX = (e.clientX - cx) / cx;
+        targetY = (e.clientY - cy) / cy;
+      };
+      const onTouchMove = (e) => {
+        if (e.touches && e.touches[0]) {
+          targetX = (e.touches[0].clientX - cx) / cx;
+          targetY = (e.touches[0].clientY - cy) / cy;
+        }
+      };
+      window.addEventListener('mousemove', onMouseMove);
+      window.addEventListener('touchmove', onTouchMove, { passive: true });
+
+      let parallaxRaf = null;
+      function animParallax() {
+        currentX += (targetX - currentX) * 0.06;
+        currentY += (targetY - currentY) * 0.06;
+
+        layerBg.style.transform = `translate(${(-currentX * 5).toFixed(1)}px, ${(-currentY * 5).toFixed(1)}px)`;
+        layerMid.style.transform = `translate(${(currentX * 10).toFixed(1)}px, ${(currentY * 10).toFixed(1)}px)`;
+        layerFg.style.transform = `translate(${(currentX * 22).toFixed(1)}px, ${(currentY * 22).toFixed(1)}px)`;
+
+        parallaxRaf = requestAnimationFrame(animParallax);
+      }
+      parallaxRaf = requestAnimationFrame(animParallax);
+
+      // 7. KẾT THÚC VÀ CHUYỂN TIẾP MƯỢT MÀ SANG FALLING LOVE EXPERIENCE
+      let isFinished = false;
+      function finishScene() {
+        if (isFinished) return;
+        isFinished = true;
+
+        screen.style.transition = 'opacity 1.2s ease';
+        screen.style.opacity = '0';
+
+        setTimeout(() => {
+          screen.classList.remove('active');
+          screen.style.display = 'none';
+          if (petalsRaf) cancelAnimationFrame(petalsRaf);
+          if (parallaxRaf) cancelAnimationFrame(parallaxRaf);
+          window.removeEventListener('resize', resizeCanvas);
+          window.removeEventListener('mousemove', onMouseMove);
+          window.removeEventListener('touchmove', onTouchMove);
+
+          if (typeof onComplete === 'function') onComplete();
+        }, 1250);
+      }
+
+      if (nextBtn) {
+        nextBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          finishScene();
+        });
+      }
+
+      // Nhấp vào màn hình sau khi nút đã hiện cũng chuyển tiếp
+      screen.addEventListener('click', () => {
+        if (nextBtn && nextBtn.classList.contains('show')) {
+          finishScene();
+        }
+      });
+
+      // Tự động chuyển tiếp sau 9.5 giây nếu người dùng muốn tận hưởng trọn vẹn
+      setTimeout(() => {
+        finishScene();
+      }, 9500);
+    };
   </script>
 
   <!-- Falling Love Core Modules -->
