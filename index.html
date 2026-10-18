@@ -4871,7 +4871,7 @@ body.question-scene-body { background: #000; }
 }
 @keyframes tinyQuestionWaguriSway {
     0%,100% { transform:translate(0,7px) rotate(14deg) scale(.97); }
-    25% { transform:translate(-2px,5px) rotate(13.2deg) scale(.971); }
+    25% { transform:translate(-2px,5px) rotate(9.0deg) scale(.971); }
     50% { transform:translate(1px,9px) rotate(14.8deg) scale(.969); }
     75% { transform:translate(2px,6px) rotate(13.5deg) scale(.971); }
 }
@@ -7004,10 +7004,9 @@ html.tiny-pc-beauty-v12 #uiverse-starfield #stars3 {
     <canvas id="natureCanvas"></canvas>
     <canvas id="laCanvas"></canvas>
 
-    <!-- Nhạc nền bài hát Đồng Thoại (Tong Hua) -->
-    <audio id="tiny-soundtrack" preload="auto" autoplay playsinline loop src="assets/music/dong-thoai.mp3">
-      <source src="assets/music/dong-thoai.mp3" type="audio/mpeg">
-      <source src="https://archive.org/download/tonghuaguangliangpinyinlyricstransl./Tong%20Hua%20-%20Guang%20Liang%20%28Pin%20yin%20%20Lyrics%29%20%2BTransl..mp3" type="audio/mpeg">
+    <!-- Nhạc nền: Giải Cứu Thế Giới -->
+    <audio id="tiny-soundtrack" preload="auto" autoplay playsinline loop src="assets/music/giai-cuu-the-gioi.mp3">
+      <source src="assets/music/giai-cuu-the-gioi.mp3" type="audio/mpeg">
     </audio>
     <div id="music-wait-hint" aria-live="polite">đợi chút xíu đii</div>
     <div id="tiny-lyric-zone" aria-live="off" aria-hidden="true">
@@ -7452,35 +7451,34 @@ html.tiny-pc-beauty-v12 #uiverse-starfield #stars3 {
         const lyricSlots = [document.getElementById('tiny-lyric-top'), document.getElementById('tiny-lyric-bottom')];
 
         const lyricCues = [
-            {"time":0.0,"text":"Đồng Thoại - 童话 (Tong Hua)"},
-            {"time":4.0,"text":"♪ Giai điệu nhẹ nhàng dành tặng em ♪"},
-            {"time":9.0,"text":"♪ Từng nốt nhạc gửi trọn yêu thương ♪"},
-            {"time":13.2,"text":"Đã bao lâu rồi anh chẳng được nghe"},
-            {"time":16.5,"text":"tiếng em cười vui"},
-            {"time":19.5,"text":"kể anh nghe câu chuyện em yêu thích"},
-            {"time":26.0,"text":"Anh nghĩ suy thật nhiều"},
-            {"time":29.0,"text":"anh bắt đầu lo lắng"},
-            {"time":32.4,"text":"liệu có phải anh đã làm sai điều gì?"},
-            {"time":39.1,"text":"Em khóc và nói với anh rằng"},
-            {"time":43.0,"text":"chuyện đồng thoại chỉ là mơ thôi"},
-            {"time":46.4,"text":"anh không thể là hoàng tử của em"},
-            {"time":51.9,"text":"Có lẽ em không thể hiểu"},
-            {"time":55.5,"text":"từ giây phút em nói yêu anh"},
-            {"time":58.7,"text":"bầu trời anh ngàn vì sao thắp sáng"},
-            {"time":65.1,"text":"Anh nguyện hóa thành thiên sứ trong đồng thoại"},
-            {"time":69.5,"text":"người thiên sứ mà em luôn yêu"},
-            {"time":72.3,"text":"dang rộng đôi cánh chở che cho em"},
-            {"time":78.4,"text":"Em hãy tin rằng..."},
-            {"time":82.0,"text":"tin chúng ta sẽ như trong câu chuyện ấy"},
-            {"time":87.7,"text":"hạnh phúc ngập tràn chính là kết cục"},
-            {"time":95.0,"text":"cùng nhau viết nên câu chuyện của đôi mình"},
-            {"time":107.0,"text":"Anh muốn hóa thành thiên sứ chở che em"},
-            {"time":114.5,"text":"dang rộng đôi cánh ôm trọn lấy em"},
-            {"time":120.7,"text":"Em hãy tin vào tình yêu này nhé"},
-            {"time":130.0,"text":"hạnh phúc và nụ cười mãi trên môi em"},
-            {"time":137.4,"text":"cùng nhau viết nên cái kết thật trọn vẹn"}
+            {"time":0.0,"text":"Giải Cứu Thế Giới - TINH HÀ SAY HI"},
+            {"time":4.0,"text":"♪ Giai điệu ngọt ngào dành tặng em ♪"},
+            {"time":9.0,"text":"Có phải anh đã cứu thế giới ở một cuộc đời trước đây?"},
+            {"time":14.0,"text":"Nên là em mới bước tới dịu dàng và nắm tay"},
+            {"time":18.5,"text":"Đi qua bão giông đang cuộn xoay, những tâm tư bủa vây"},
+            {"time":22.8,"text":"Người đã vì anh mà ôm lấy!"},
+            {"time":28.0,"text":"Và giờ thì cả thế giới của anh đang ở đây"},
+            {"time":32.5,"text":"Là người con gái đứng trước mắt anh lúc này"},
+            {"time":37.0,"text":"Tưởng như chính anh đang nằm mơ"},
+            {"time":41.0,"text":"Có đâu ngờ mình may mắn đến nhường này!"},
+            {"time":46.0,"text":"Đôi khi anh ngẩn ngơ, lòng còn đầy băn khoăn"},
+            {"time":50.5,"text":"Sao em luôn chọn anh mà chẳng hề phân vân?"},
+            {"time":55.0,"text":"Dù mọi chuyện đang tốt hay là chẳng ok"},
+            {"time":59.5,"text":"Em vẫn ở đó thôi, chẳng gì đổi thay"},
+            {"time":64.0,"text":"Người làm anh nhớ nụ cười em trao từ lần đầu tiên"},
+            {"time":73.0,"text":"Người là những yên bình, chỉ mong mãi gần bên"},
+            {"time":77.5,"text":"Là điều quý giá nhất anh chẳng thể nào quên"},
+            {"time":82.0,"text":"Có phải anh đã cứu thế giới ở một cuộc đời trước đây?"},
+            {"time":87.0,"text":"Nên là em mới bước tới dịu dàng và nắm tay anh"},
+            {"time":91.5,"text":"Đi qua bão giông đang cuộn xoay, những tâm tư bủa vây"},
+            {"time":96.0,"text":"Người đã vì anh mà ôm lấy!"},
+            {"time":101.0,"text":"Và giờ thì cả thế giới của anh đang ở đây"},
+            {"time":105.5,"text":"Là người con gái đứng trước mắt anh lúc này"},
+            {"time":110.0,"text":"Tựa như chính anh đang nằm mơ, có đâu ngờ"},
+            {"time":114.5,"text":"Mình may mắn đến nhường này!"},
+            {"time":124.0,"text":"Em đã đến giải cứu thế giới của anh..."}
         ];
-        const MUSIC_HOLD_TIME = 13.2;
+        const MUSIC_HOLD_TIME = 9.0;
         const MUSIC_VOLUME = 0.84;
         let musicAllowedPastGate = false;
         let musicAutoAdvanceTimer = null;
@@ -7631,7 +7629,7 @@ html.tiny-pc-beauty-v12 #uiverse-starfield #stars3 {
 
         tinySoundtrack.addEventListener('timeupdate', () => {
             const t = tinySoundtrack.currentTime || 0;
-            // Khi đang ở cảnh 2 (Text 3: "Hôm nay anh nhận lệnh...") và nhạc chạm mốc 13.2s:
+            // Khi đang ở cảnh 2 (Text 3: "Hôm nay anh nhận lệnh...") và nhạc chạm mốc 9.0s:
             // Hiển thị animation nút/thông báo "được ròi bấm đi ạ"
             if (clickCount === 2 && t >= MUSIC_HOLD_TIME) {
                 triggerReadyToClick();
@@ -7723,12 +7721,12 @@ html.tiny-pc-beauty-v12 #uiverse-starfield #stars3 {
             musicWaitHint?.classList.remove('show', 'ready-to-click');
             hideIntroNudge();
 
-            // Khóa đồng bộ tuyệt đối: đảm bảo đúng mốc 13.2s tiếng hát cất lên
+            // Khóa đồng bộ tuyệt đối: đảm bảo đúng mốc 9.0s tiếng hát cất lên
             startMusicIfAllowed();
             try {
                 const cur = tinySoundtrack.currentTime || 0;
-                // Nếu âm thanh chưa kịp chạy đến 13.2s (ví dụ mới bật), đồng bộ tới 13.2s.
-                // Nếu âm thanh đang phát tự nhiên qua 13.2s, giữ nguyên liên tục, không cắt / tua lại.
+                // Nếu âm thanh chưa kịp chạy đến 9.0s (ví dụ mới bật), đồng bộ tới 9.0s.
+                // Nếu âm thanh đang phát tự nhiên qua 9.0s, giữ nguyên liên tục, không cắt / tua lại.
                 if (cur < MUSIC_HOLD_TIME - 0.2) {
                     tinySoundtrack.currentTime = MUSIC_HOLD_TIME;
                 }
@@ -7779,7 +7777,7 @@ html.tiny-pc-beauty-v12 #uiverse-starfield #stars3 {
                     return;
                 }
 
-                // Nếu nhạc chưa tới mốc 13.2s:
+                // Nếu nhạc chưa tới mốc 9.0s:
                 // User yêu cầu: "phải repeat các từ đó đến khi đoạn nhạc chạy đến đoạn 'người ta nói chẳng ai hiểu' chứ không phải cắt / skip đoạn nhạc"
                 // Tuyệt đối KHÔNG cắt / skip đoạn nhạc khi click!
                 showMusicWaitHint();
@@ -7809,7 +7807,7 @@ html.tiny-pc-beauty-v12 #uiverse-starfield #stars3 {
                 // Kích hoạt lặp các từ "xíu nữa", "sắp được rùi ", "1 chút xíu nữa "
                 startWaitRepeat();
 
-                // Lên lịch kích hoạt "được ròi bấm đi ạ" chính xác lúc chạm mốc 13.2s
+                // Lên lịch kích hoạt "được ròi bấm đi ạ" chính xác lúc chạm mốc 9.0s
                 clearTimeout(musicAutoAdvanceTimer);
                 const curT = tinySoundtrack.currentTime || 0;
                 const remainMs = Math.max(100, (MUSIC_HOLD_TIME - curT) * 1000);
@@ -11708,7 +11706,7 @@ if(window.TINY_PERF && !window.TINY_PERF.mobile){
 
     <div
       id="app"
-      data-page='{"component": "views/home", "props": {"errors": {}, "name": "LoveGift", "quote": {"message": "Mong thế giới này luôn dịu dàng với em, như cách em mang ấm áp đến mọi người.", "author": "Gửi Em Với Cả Yêu Thương 💕"}, "message": "", "client": {"fontName": "Mali", "color": "#ff6b9d", "messages": ["Chúc em một đời an yên, bốn mùa đều có người chở che và yêu thương 🌸", "Hãy luôn tự tin, tự yêu và tự tỏa sáng theo cách riêng của em nhé ✨", "Nụ cười của em là điều đẹp đẽ nhất, hãy giữ nó mãi trên môi nhé ☀️", "20/10 ngập tràn niềm vui, mong mọi điều ước của em đều thành hiện thực 💖"], "music": "assets/music/dong-thoai.mp3", "images": ["assets/image/anh2.jpg", "assets/image/anhDoi2.jpg", "assets/image/doi2.jpg", "assets/image/doi3.jpg", "assets/image/doi4.jpg", "assets/image/doi5.jpg"]}, "clientId": "/"}, "url": "/", "version": "", "clearHistory": false, "encryptHistory": false}'
+      data-page='{"component": "views/home", "props": {"errors": {}, "name": "LoveGift", "quote": {"message": "Mong thế giới này luôn dịu dàng với em, như cách em mang ấm áp đến mọi người.", "author": "Gửi Em Với Cả Yêu Thương 💕"}, "message": "", "client": {"fontName": "Mali", "color": "#ff6b9d", "messages": ["Chúc em một đời an yên, bốn mùa đều có người chở che và yêu thương 🌸", "Hãy luôn tự tin, tự yêu và tự tỏa sáng theo cách riêng của em nhé ✨", "Nụ cười của em là điều đẹp đẽ nhất, hãy giữ nó mãi trên môi nhé ☀️", "20/10 ngập tràn niềm vui, mong mọi điều ước của em đều thành hiện thực 💖"], "music": "assets/music/giai-cuu-the-gioi.mp3", "images": ["assets/image/photo1.png", "assets/image/photo2.png", "assets/image/photo3.png"]}, "clientId": "/"}, "url": "/", "version": "", "clearHistory": false, "encryptHistory": false}'
     ></div>
   </div><!-- /#love-rain-screen -->
 
@@ -12154,12 +12152,9 @@ if(window.TINY_PERF && !window.TINY_PERF.mobile){
         LoadingScreen.setProgress(35);
 
         var defaultPhotos = [
-          "assets/image/anh2.jpg",
-          "assets/image/anhDoi2.jpg",
-          "assets/image/doi2.jpg",
-          "assets/image/doi3.jpg",
-          "assets/image/doi4.jpg",
-          "assets/image/doi5.jpg"
+          "assets/image/photo1.png",
+          "assets/image/photo2.png",
+          "assets/image/photo3.png"
         ];
         var photoUrls = defaultPhotos;
         if (window.LOVEGIFT_IMAGES && window.LOVEGIFT_IMAGES.length > 0) {

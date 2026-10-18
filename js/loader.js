@@ -9,12 +9,9 @@
  */
 (function () {
   var defaultPhotos = [
-    "assets/image/anh2.jpg",
-    "assets/image/anhDoi2.jpg",
-    "assets/image/doi2.jpg",
-    "assets/image/doi3.jpg",
-    "assets/image/doi4.jpg",
-    "assets/image/doi5.jpg"
+    "assets/image/photo1.png",
+    "assets/image/photo2.png",
+    "assets/image/photo3.png"
   ];
 
   if (!window.LOVEGIFT_IMAGES || window.LOVEGIFT_IMAGES.length === 0) {
