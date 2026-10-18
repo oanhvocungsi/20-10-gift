@@ -70,10 +70,10 @@ const DEFAULT_IMAGES = [
 const DEFAULT = {
   title:        'Chúc Mừng Ngày 20/10 🌸',
   music:        '',
-  popupMessage: '💖 Gửi cậu — Cảm ơn cậu vì đã luôn kiên cường, đáng yêu và dịu dàng. Mong rằng hôm nay và cả những ngày sau, cuộc sống sẽ luôn dành tặng cậu những điều ngọt ngào nhất, bình yên nhất và ngập tràn nụ cười rạng rỡ! Chúc cậu ngày 20/10 thật tuyệt vời nhé! 🌸✨',
+  popupMessage: '💖 Gửi em — Cảm ơn em vì đã luôn kiên cường, đáng yêu và dịu dàng. Mong rằng hôm nay và cả những ngày sau, cuộc sống sẽ luôn dành tặng em những điều ngọt ngào nhất, bình yên nhất và ngập tràn nụ cười rạng rỡ! Chúc em ngày 20/10 thật tuyệt vời nhé! 🌸✨',
   messages: [
-    'Gửi đến cậu — cô gái dịu dàng và ấm áp nhất 💖',
-    'Mong thế giới này luôn đối đãi với cậu thật dịu dàng 🌸',
+    'Gửi đến em — cô gái dịu dàng và ấm áp nhất 💖',
+    'Mong thế giới này luôn đối đãi với em thật dịu dàng 🌸',
     'Ngày 20/10 thật an yên, rạng rỡ và ngập tràn yêu thương nhé 💕'
   ],
   images:   DEFAULT_IMAGES,

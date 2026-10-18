@@ -220,8 +220,8 @@ function z() {
         (x = window.dataChristmasTree.data.messages),
         (x && 0 !== x.length) ||
         (x = [
-            "Gửi đến cậu — cô gái dịu dàng và ấm áp nhất 💖",
-            "Mong thế giới này luôn đối đãi với cậu thật dịu dàng 🌸",
+            "Gửi đến em — cô gái dịu dàng và ấm áp nhất 💖",
+            "Mong thế giới này luôn đối đãi với em thật dịu dàng 🌸",
             "Ngày 20/10 thật an yên, rạng rỡ và ngập tràn yêu thương nhé 💕"
         ]));
     const t = () => {
